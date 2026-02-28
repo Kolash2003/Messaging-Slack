@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
@@ -20,7 +21,6 @@ const userSchema = new mongoose.Schema({
         required: [true, "Username is required"],
         unique: [true, "Username already exists"],
         match: [
-            // eslint-disable-next-line no-useless-escape
             /^[a-zA-Z0-9]+$/,
             'Username can only contain letters and numbers'
         ]
@@ -32,12 +32,14 @@ const userSchema = new mongoose.Schema({
     timestamps: true
 });
 
-userSchema.pre('save', function saveUser(next) {
+// this prehook is being used to hash the password before saving it to the database (user Auth)
+userSchema.pre('save', function saveUser() {
     const user = this;
+    const SALT = bcrypt.genSaltSync(9);
+    const hashedPassword = bcrypt.hashSync(user.password, SALT);
+    user.password = hashedPassword;
     user.avatar = `http://robohash.org/${user.username}`;
-    next();
 });
-
 
 const User = mongoose.model('User', userSchema);
 export default User;

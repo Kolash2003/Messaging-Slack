@@ -1,10 +1,9 @@
 import express from 'express';
-import { StatusCodes } from 'http-status-codes';
+
+import { signUp } from '../../controllers/userController.js';
 
 const userRouter = express.Router();
 
-userRouter.get('/', (req, res) => {
-    return res.status(StatusCodes.OK).json({ message: "GET /users" });
-});
+userRouter.post('/signup', signUp)
 
 export default userRouter;
