@@ -13,3 +13,7 @@ export const PROD_DB_URL = process.env.PROD_DB_URL;
 export const JWT_SECRET = process.env.JWT_SECRET;
 
 export const JWT_EXPIRY = process.env.JWT_EXPIRY || '1h';
+
+export const EMAIL_USER = process.env.EMAIL_USER;
+
+export const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
