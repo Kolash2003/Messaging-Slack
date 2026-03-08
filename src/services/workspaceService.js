@@ -1,8 +1,11 @@
 import { StatusCodes } from 'http-status-codes';
 import { v4 as uuidv4 } from 'uuid';
 
+import addEmailToQueue from '../producer/mailQueueProducer.js';
 import channelRepository from '../repositories/channelRepository.js';
+import userRepository from '../repositories/userRepository.js';
 import workspaceRepository from "../repositories/workspaceRepository.js"
+import { workspaceJoinEmail } from '../utils/common/mailObject.js';
 import ClientError from '../utils/errors/clientError.js';
 import ValidationError from '../utils/errors/validationError.js';
 
@@ -221,15 +224,6 @@ export const addMemberToWorkspaceService = async function (workspaceId, memberId
             });
         }
 
-        const isMember = isUserMemberOfWorkspace(workspace, memberId);
-
-        if (isMember) {
-            throw new ClientError({
-                explanation: "User is already a member of the workspace",
-                message: "User is not allowed to add the user to the workspace",
-                statusCode: StatusCodes.UNAUTHORIZED
-            });
-        }
 
         const isAdmin = isUserAdminOfWorkspace(workspace, userId);
 
@@ -241,7 +235,30 @@ export const addMemberToWorkspaceService = async function (workspaceId, memberId
             });
         }
 
+        const isValidUser = await userRepository.getById(memberId);
+
+        if (!isValidUser) {
+            throw new ClientError({
+                explanation: "Invalid data sent from the client",
+                message: "User not found",
+                statusCode: StatusCodes.NOT_FOUND
+            });
+        }
+
+        const isMember = isUserMemberOfWorkspace(workspace, memberId);
+
+        if (isMember) {
+            throw new ClientError({
+                explanation: "User is already a member of the workspace",
+                message: "User is not allowed to add the user to the workspace",
+                statusCode: StatusCodes.UNAUTHORIZED
+            });
+        }
+
         const response = await workspaceRepository.addMemberToWorkspace(workspaceId, memberId, role);
+
+        addEmailToQueue({ ...workspaceJoinEmail(workspace.name), to: isValidUser.email });
+
         return response;
     } catch (error) {
         console.log('addMembertoWorkspaceService error', error);
