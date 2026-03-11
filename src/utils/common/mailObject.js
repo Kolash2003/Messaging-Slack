@@ -1,4 +1,4 @@
-import { EMAIL_USER } from "../../config/serverConfig";
+import { EMAIL_USER } from "../../config/serverConfig.js";
 
 export const workspaceJoinEmail = function (workspaceName) {
     return {
