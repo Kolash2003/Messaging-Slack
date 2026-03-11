@@ -1,25 +1,30 @@
-import { StatusCodes } from "http-status-codes";
+import { StatusCodes } from 'http-status-codes';
 
-import { isMemebrPartOfWorkspaceService } from "../services/memeberService";
-import { successResponse } from "../utils/commonUtils";
-import { customErrorResponse } from "../utils/errorUtils";
+import { isMemberPartOfWorkspaceService } from '../services/memberService.js';
+import {
+    customErrorResponse,
+    internalErrorResponse,
+    successResponse
+} from '../utils/common/responseObjects.js';
 
-export const isMemberPartOfWorkspaceController = async (req, res) => {
+export const isMemberPartOfWorkspaceController = async function (req, res) {
     try {
-        const response = await isMemebrPartOfWorkspaceService(
+        const response = await isMemberPartOfWorkspaceService(
             req.params.workspaceId,
             req.user
         );
 
-        return res.status(StatusCodes.OK).json(successResponse(response, 'User is a member of the workspace'));
+        return res
+            .status(StatusCodes.OK)
+            .json(successResponse(response, 'User is a member of the workspace'));
     } catch (error) {
-        console.log('User controller error');
+        console.log('User controller error', error);
         if (error.statusCode) {
             return res.status(error.statusCode).json(customErrorResponse(error));
         }
 
         return res
             .status(StatusCodes.INTERNAL_SERVER_ERROR)
-            .json(customErrorResponse(error));
+            .json(internalErrorResponse(error));
     }
-}
+};
