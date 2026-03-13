@@ -1,4 +1,4 @@
-import Message from '../schema/message.js';
+import Message from '../schema/messageSchema.js';
 import crudRepository from './crudRepositories.js';
 
 const messageRepository = {

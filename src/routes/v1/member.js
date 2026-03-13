@@ -1,30 +1,10 @@
-import { StatusCodes } from 'http-status-codes';
+import express from "express";
 
-import { isMemberPartOfWorkspaceService } from '../services/memberService.js';
-import {
-    customErrorResponse,
-    internalErrorResponse,
-    successResponse
-} from '../utils/common/responseObjects.js';
+import { isMemberPartOfWorkspaceController } from "../../controllers/memberController.js";
+import { isAuthenticated } from "../../middlewares/authMiddlewares.js";
 
-export const isMemberPartOfWorkspaceController = async function (req, res) {
-    try {
-        const response = await isMemberPartOfWorkspaceService(
-            req.params.workspaceId,
-            req.user
-        );
+const memberRouter = express.Router();
 
-        return res
-            .status(StatusCodes.OK)
-            .json(successResponse(response, 'User is a member of the workspace'));
-    } catch (error) {
-        console.log('User controller error', error);
-        if (error.statusCode) {
-            return res.status(error.statusCode).json(customErrorResponse(error));
-        }
+memberRouter.get('/workspace/:workspaceId', isAuthenticated, isMemberPartOfWorkspaceController);
 
-        return res
-            .status(StatusCodes.INTERNAL_SERVER_ERROR)
-            .json(internalErrorResponse(error));
-    }
-};
+export default memberRouter;
